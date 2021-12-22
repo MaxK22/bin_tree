@@ -14,6 +14,7 @@ public:
     tree *right;
     tree *add(int x);
     tree(int x);
+    tree(){};
     void print();
     void print_leaves();
     bool balance();
@@ -26,6 +27,8 @@ public:
     tree *remove(int x);
     tree *remove_min();
     void print_tree();
+    tree *before_min();
+    tree *before_max();
 };
 
 void tree::fix_h() {
@@ -77,6 +80,8 @@ tree::tree(int x) {
     h = 1;
     clones = 1;
 }
+
+
 tree *tree::add(int x) {
     if(x > src)
     {
@@ -120,6 +125,20 @@ tree *tree::minimum() {
     return l;
 }
 
+tree *tree::before_min() {
+    tree * l = this;
+    while(l->left != NULL && l->left->left != NULL)
+        l = l->left;
+    return l;
+}
+
+tree *tree::before_max() {
+    tree * l = this;
+    while(l->right != NULL && l->right->right != NULL)
+        l = l->right;
+    return l;
+}
+
 void tree::print() {
     if(left != NULL)
         left->print();
@@ -158,11 +177,55 @@ tree *tree::remove_min() {
 tree *tree::remove(int x) {
     if(x < src)
     {
-        left = (left ? left->remove(x) : NULL);
+        if(left != NULL && left->src == x) {
+            if (left->left != NULL) {
+                tree *l = left->left;
+                tree *r = left->right;
+                tree *bm = left->left->before_max();
+                delete left;
+                left = bm->right;
+                bm->right = left->left;
+                left->left = l;
+                left->right = r;
+            }
+            else
+            {
+                tree *n = left->right;
+                delete left;
+                left = n;
+            }
+
+        }
+        else if(left != NULL)
+            left = left->remove(x);
     }
     else if(x > src)
     {
-        right = (right ? right->remove(x) : NULL);
+        if(right != NULL && right->src == x)
+        {
+
+            if(right->right != NULL) {
+                tree *l = right->left;
+                tree *r = right->right;
+                tree *bm = right->right->before_min();
+                delete right;
+                right = bm->left;
+                bm->left = right->right;
+                right->left = l;
+                right->right = r;
+            }
+            else
+            {
+                tree* n = right->left;
+                delete right;
+                right = n;
+            }
+
+
+        }
+        else if(right != NULL)
+            right = right->remove(x);
+
     }
     else
     {
@@ -174,6 +237,7 @@ tree *tree::remove(int x) {
 }
 
 int main() {
+    /*
     int x;
     cin >> x;
     if(x != 0) {
@@ -185,10 +249,123 @@ int main() {
         }
        a->print();
 
+
         cout << "test" << endl;
 
     }
     else
         cout << 0;
+    */
+    setlocale(LC_ALL, "Russian");
+    cout << "Enter tree (введите последовательность натуральных чисел." << endl <<  "Последовательность завершается числом 0, которое означает конец ввода, без его добавления в дерево" << endl;
+    int x;
+    cin >> x;
+    tree *a;
+    if(x != 0) {
+        a = new tree(x);
+        a->clones = 0;
+        while(x!=0) {
+            a = a->add(x);
+            cin >> x;
+        }
+    }
+
+    cout << "Enter 'help' to see all commands" << endl;
+    string command;
+    cin >> command;
+    while(command != "end")
+    {
+        if(command == "help")
+            cout << "search element by key i: 'search' [int](key)" << endl <<
+                "search minimum element: 'search_min'" << endl <<
+                 //"size: 'size'" << endl <<
+                 //"is empty: 'is_empty'" << endl <<
+                 //"push front: 'p_f' [int](new element)" << endl <<
+                 //"push back: 'p_b' [int](new element)" << endl <<
+                 "push i: 'add' [int](key)" << endl <<
+                 "search element by key i: 'search' [int](key)" << endl <<
+                 "delete: 'del' [int](key)" << endl <<
+                 "delete_minimum: 'del_min'" << endl <<
+                 "print: 'print'" << endl <<
+                 "close programm: 'end'";
+        else if(command == "search")
+        {
+            int x;
+            cin >> x;
+            if(a == NULL)
+            {
+                cout << "Tree is empty";
+            }
+            else {
+                tree *f = a->search(x);
+                if (f != NULL)
+                    cout << f->src;
+                else
+                    cout << "Element wasn't found";
+            }
+        }
+        else if(command == "search_min")
+        {
+            if(a == NULL)
+            {
+                cout << "Tree is empty";
+            }
+            else {
+                tree *f = a->minimum();
+                if (f != NULL)
+                    cout << f->src;
+                else
+                    cout << "Element wasn't found";
+            }
+        }
+        else if(command == "del")
+        {
+            int x;
+            cin >> x;
+            if(a == NULL)
+            {
+                cout << "Tree is empty";
+            }
+            else {//kjsvfbhkdsfvbgds
+                tree *f = a->search(x);
+                if (f != NULL)
+                    cout << f->src;
+                else
+                    cout << "Element wasn't found";
+            }
+        }
+        else if(command == "del_min")
+        {
+            if(a == NULL)
+            {
+                cout << "Tree is empty";
+            }
+            else {//sfjvbsdkhbvsdkhbvskvbsuhfbvks
+                tree *f = a->minimum();
+                if (f != NULL)
+                    cout << f->src;
+                else
+                    cout << "Element wasn't found";
+            }
+        }
+        else if(command == "add")
+        {
+            int x;
+            cin >> x;
+            if(a != NULL)
+            a = a->add(x);
+            else
+                a = new tree(x);
+            cout << "element was added";
+        }
+        else if(command == "print")
+        {
+            a->print();
+        }
+        cout << endl;
+        cin >> command;
+    }
+
+
     return 0;
 }
