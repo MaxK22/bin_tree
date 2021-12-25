@@ -1,6 +1,8 @@
 #include <iostream>
 #include "algorithm"
+#include "vector"
 #include "math.h"
+#include "string"
 
 using namespace std;
 
@@ -29,6 +31,8 @@ public:
     void print_tree();
     tree *before_min();
     tree *before_max();
+    void math_for_print(vector<string>&s, int x, int m);
+    void math_for_print2(vector<string>& s,int hs, int x, int m);
 };
 
 void tree::fix_h() {
@@ -183,6 +187,7 @@ tree *tree::remove(int x) {
                 tree *r = left->right;
                 tree *bm = left->left->before_max();
                 delete left;
+                cout << "element was deleted";
                 left = bm->right;
                 bm->right = left->left;
                 left->left = l;
@@ -198,6 +203,8 @@ tree *tree::remove(int x) {
         }
         else if(left != NULL)
             left = left->remove(x);
+        else
+            cout << "element wasn't founded";
     }
     else if(x > src)
     {
@@ -209,6 +216,7 @@ tree *tree::remove(int x) {
                 tree *r = right->right;
                 tree *bm = right->right->before_min();
                 delete right;
+                cout << "element was deleted";
                 right = bm->left;
                 bm->left = right->right;
                 right->left = l;
@@ -225,18 +233,69 @@ tree *tree::remove(int x) {
         }
         else if(right != NULL)
             right = right->remove(x);
+        else
+            cout << "element wasn't founded";
 
     }
-    else
+    /*else
     {
         tree *l = left;
         tree *r = right;
         delete this;
-    }
+
+    }*/
     return do_balance();
 }
 
+///prrrrrrrrrrrrint treeeeeeeeeee
+
+void tree::print_tree() {
+    //vector<int> len(h, 0);
+    vector<string> str(h, "");
+    int q = to_string(this->before_max()->right->src).size();
+    int m = pow(2, h-2)*2 - 1;
+    math_for_print(str, q, m);
+    for(int i = h-1; i >=0 ; i--)
+    {
+        //str[i].erase( str[i].end() - q,  str[i].end());
+    }
+    for(int i = h-1; i >=0 ; i--)
+    {
+        string a((str[0].size() - str[i].size())/2,' ');
+        cout << a << str[i] << endl;
+    }
+
+}
+
+void tree::math_for_print( vector<string>& s, int x, int m) {
+    string a = to_string(src);
+    int need = x - a.size();
+    s[h-1]+= string(need/2, ' ') + a + string ((need - need/2) + (m-pow(2, h-2))*x/(pow(2, h-2)+1), ' ');
+    //x[h-1]+=( (std::to_string(src)).size() + 1 );
+
+
+    if(right!=NULL)
+        right->math_for_print(s, x, m);
+    else
+        math_for_print2(s,h-2, x,  m);
+    if(left!=NULL)
+        left->math_for_print(s, x,  m);
+    else
+        math_for_print2(s,h-2, x,  m);
+}
+
+void tree::math_for_print2(vector<string>& s, int hs, int x, int m) {
+    if(hs >= 0) s[hs] += string(x+(m-pow(2, hs-1))*x/(pow(2, hs-1)+1), ' ');
+    if(hs >= 1) {
+        math_for_print2(s, hs - 1, x,  m);
+        math_for_print2(s, hs - 1, x, m);
+    }
+}
+
+///end of functions
+
 int main() {
+    cout << pow(2, 0);
     /*
     int x;
     cin >> x;
@@ -257,7 +316,7 @@ int main() {
         cout << 0;
     */
     setlocale(LC_ALL, "Russian");
-    cout << "Enter tree (введите последовательность натуральных чисел." << endl <<  "Последовательность завершается числом 0, которое означает конец ввода, без его добавления в дерево" << endl;
+    cout << "Enter tree (введите последовательность натуральных чисел." << endl <<  "Последовательность завершается числом 0, которое означает конец ввода, без его добавления в дерево)" << endl;
     int x;
     cin >> x;
     tree *a;
@@ -286,7 +345,8 @@ int main() {
                  "search element by key i: 'search' [int](key)" << endl <<
                  "delete: 'del' [int](key)" << endl <<
                  "delete_minimum: 'del_min'" << endl <<
-                 "print: 'print'" << endl <<
+                 "simple print: 'print'" << endl <<
+                 "print full tree with leaves and other tree things: 'fprint'" << endl <<
                  "close programm: 'end'";
         else if(command == "search")
         {
@@ -326,12 +386,8 @@ int main() {
             {
                 cout << "Tree is empty";
             }
-            else {//kjsvfbhkdsfvbgds
-                tree *f = a->search(x);
-                if (f != NULL)
-                    cout << f->src;
-                else
-                    cout << "Element wasn't found";
+            else {
+                a = a->remove(x);
             }
         }
         else if(command == "del_min")
@@ -341,11 +397,8 @@ int main() {
                 cout << "Tree is empty";
             }
             else {//sfjvbsdkhbvsdkhbvskvbsuhfbvks
-                tree *f = a->minimum();
-                if (f != NULL)
-                    cout << f->src;
-                else
-                    cout << "Element wasn't found";
+                a = a->remove_min();
+                cout << "element was deleted";
             }
         }
         else if(command == "add")
@@ -360,7 +413,23 @@ int main() {
         }
         else if(command == "print")
         {
-            a->print();
+            if(a == NULL)
+            {
+                cout << "Tree is empty";
+            }
+            else {
+                a->print();
+            }
+        }
+        else if(command == "fprint")
+        {
+            if(a == NULL)
+            {
+                cout << "Tree is empty";
+            }
+            else {
+                a->print_tree();
+            }
         }
         cout << endl;
         cin >> command;
