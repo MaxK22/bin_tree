@@ -253,7 +253,7 @@ void tree::print_tree() {
     //vector<int> len(h, 0);
     vector<string> str(h, "");
     int q = to_string(this->before_max()->right->src).size();
-    int m = pow(2, h-2)*2 - 1;
+    int m = pow(2, h-1)*2 - 1;
     math_for_print(str, q, m);
     for(int i = h-1; i >=0 ; i--)
     {
@@ -270,7 +270,8 @@ void tree::print_tree() {
 void tree::math_for_print( vector<string>& s, int x, int m) {
     string a = to_string(src);
     int need = x - a.size();
-    s[h-1]+= string(need/2, ' ') + a + string ((need - need/2) + (m-pow(2, h-2))*x/(pow(2, h-2)+1), ' ');
+    int xs = pow(2,s.size() - h);
+    s[h-1]+= string(need/2, ' ') + a + string ((need - need/2) + (m-xs)*x/(xs+1), ' ');
     //x[h-1]+=( (std::to_string(src)).size() + 1 );
 
 
@@ -285,7 +286,8 @@ void tree::math_for_print( vector<string>& s, int x, int m) {
 }
 
 void tree::math_for_print2(vector<string>& s, int hs, int x, int m) {
-    if(hs >= 0) s[hs] += string(x+(m-pow(2, hs-1))*x/(pow(2, hs-1)+1), ' ');
+    int xs = pow(2,s.size() - hs - 1);
+    if(hs >= 0) s[hs] += string(x+(m-xs)*x/(xs+1), ' ');
     if(hs >= 1) {
         math_for_print2(s, hs - 1, x,  m);
         math_for_print2(s, hs - 1, x, m);
@@ -295,7 +297,7 @@ void tree::math_for_print2(vector<string>& s, int hs, int x, int m) {
 ///end of functions
 
 int main() {
-    cout << pow(2, 0);
+    cout << pow(2, 3);
     /*
     int x;
     cin >> x;
