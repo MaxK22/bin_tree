@@ -26,13 +26,13 @@ public:
     void fix_h();
     tree *search(int x);
     tree *minimum();
-    tree *remove(int x);
+    //tree *remove(int x);
     tree *remove_min();
     void print_tree();
-    tree *before_min();
-    tree *before_max();
-    void math_for_print(vector<string>&s, int x, int m);
-    void math_for_print2(vector<string>& s,int hs, int x, int m);
+    tree *fmin();
+    tree *fmax();
+    void math_for_print(vector<string>&s,int hs, int x);
+    void math_for_print2(vector<string>& s,int hs, int x);
 };
 
 void tree::fix_h() {
@@ -58,6 +58,7 @@ tree *tree::rotate_left() {
 }
 
 tree *tree::do_balance() {
+    fix_h();
     tree * change = this;
     if((left ? left->h : 0) - (right ? right->h : 0) == 2)
     {
@@ -109,7 +110,7 @@ tree *tree::add(int x) {
     }
     else
         clones++;
-    fix_h();
+    //fix_h();
     return do_balance();
 }
 
@@ -129,16 +130,16 @@ tree *tree::minimum() {
     return l;
 }
 
-tree *tree::before_min() {
+tree *tree::fmin() {
     tree * l = this;
-    while(l->left != NULL && l->left->left != NULL)
+    while(l->left != NULL)
         l = l->left;
     return l;
 }
 
-tree *tree::before_max() {
+tree *tree::fmax() {
     tree * l = this;
-    while(l->right != NULL && l->right->right != NULL)
+    while(l->right != NULL)
         l = l->right;
     return l;
 }
@@ -178,27 +179,34 @@ tree *tree::remove_min() {
     return do_balance();
 }
 
-tree *tree::remove(int x) {
+/*tree *tree::remove(int x) {//doesn't work because it's...
     if(x < src)
     {
         if(left != NULL && left->src == x) {
+            cout << "here";
             if (left->left != NULL) {
+                cout << "here";
                 tree *l = left->left;
                 tree *r = left->right;
                 tree *bm = left->left->before_max();
+                tree * m = bm->right;
+                bm->right = m->left;
+                cout << "here";
                 delete left;
                 cout << "element was deleted";
-                left = bm->right;
-                bm->right = left->left;
+                left = m;
                 left->left = l;
                 left->right = r;
+
             }
             else
             {
                 tree *n = left->right;
                 delete left;
+                cout << "element was deleted";
                 left = n;
             }
+            if(left != NULL)left->fix_h();
 
         }
         else if(left != NULL)
@@ -210,25 +218,30 @@ tree *tree::remove(int x) {
     {
         if(right != NULL && right->src == x)
         {
-
+            cout << "here";
             if(right->right != NULL) {
+                cout << "here";
                 tree *l = right->left;
                 tree *r = right->right;
-                tree *bm = right->right->before_min();
+                //tree *bm = right->fmin();
+                //t/ree * m = bm->left;
+               // bm->left = m->right;
+                cout << "here";
                 delete right;
                 cout << "element was deleted";
-                right = bm->left;
-                bm->left = right->right;
+               // right = m;
                 right->left = l;
                 right->right = r;
+
             }
             else
             {
                 tree* n = right->left;
                 delete right;
+                cout << "element was deleted";
                 right = n;
             }
-
+            if(right != NULL)right->fix_h();
 
         }
         else if(right != NULL)
@@ -237,67 +250,85 @@ tree *tree::remove(int x) {
             cout << "element wasn't founded";
 
     }
-    /*else
+    else
     {
-        tree *l = left;
-        tree *r = right;
-        delete this;
-
-    }*/
+        ////??????? - i did it outside the function
+    }
+    fix_h();
     return do_balance();
 }
-
+*/
 ///prrrrrrrrrrrrint treeeeeeeeeee
 
 void tree::print_tree() {
     //vector<int> len(h, 0);
     vector<string> str(h, "");
-    int q = to_string(this->before_max()->right->src).size();
-    int m = pow(2, h-1)*2 - 1;
-    math_for_print(str, q, m);
+    int q = to_string(fmax()->src).size();
+    int m = (1 << h) - 1;
+    math_for_print(str,h, q);
+
     for(int i = h-1; i >=0 ; i--)
     {
-        //str[i].erase( str[i].end() - q,  str[i].end());
-    }
-    for(int i = h-1; i >=0 ; i--)
-    {
-        string a((str[0].size() - str[i].size())/2,' ');
+        string a(((1 << i)-1)*q,' ');
         cout << a << str[i] << endl;
     }
 
 }
 
-void tree::math_for_print( vector<string>& s, int x, int m) {
+void tree::math_for_print( vector<string>& s,int hs, int x) {
     string a = to_string(src);
     int need = x - a.size();
-    int xs = pow(2,s.size() - h);
-    s[h-1]+= string(need/2, ' ') + a + string ((need - need/2) + (m-xs)*x/(xs+1), ' ');
-    //x[h-1]+=( (std::to_string(src)).size() + 1 );
-
-
-    if(right!=NULL)
-        right->math_for_print(s, x, m);
-    else
-        math_for_print2(s,h-2, x,  m);
+    s[hs-1]+= string(need/2, ' ') + a + string ((need - need/2) + (1 << hs)*x-x, ' ');
     if(left!=NULL)
-        left->math_for_print(s, x,  m);
+        left->math_for_print(s,hs-1, x);
     else
-        math_for_print2(s,h-2, x,  m);
+        math_for_print2(s,hs-1, x);
+    if(right!=NULL)
+        right->math_for_print(s,hs-1, x);
+    else
+        math_for_print2(s,hs-1, x);
+
 }
 
-void tree::math_for_print2(vector<string>& s, int hs, int x, int m) {
-    int xs = pow(2,s.size() - hs - 1);
-    if(hs >= 0) s[hs] += string(x+(m-xs)*x/(xs+1), ' ');
-    if(hs >= 1) {
-        math_for_print2(s, hs - 1, x,  m);
-        math_for_print2(s, hs - 1, x, m);
+void tree::math_for_print2(vector<string>& s, int hs, int x) {
+    if(hs >= 1) s[hs-1] += string((1 << hs)*x, ' ');
+    if(hs >= 2) {
+        math_for_print2(s, hs - 1, x);
+        math_for_print2(s, hs - 1, x);
     }
+}
+
+//remake of remove
+
+tree* remove(tree* p, int x)
+{
+    if( p == NULL ) {
+        cout << "element wasn't founded";
+        return NULL;
+    }
+    if( x < p->src )
+        p->left = remove(p->left,x);
+    else if( x > p->src )
+        p->right = remove(p->right,x);
+    else //  k == p->src
+    {
+        tree* l = p->left;
+        tree* r = p->right;
+        delete p;
+        cout << "element was deleted";
+        if( r == NULL ) return l;
+        tree* min = r->fmin();
+        min->right = r->remove_min();
+        min->left = l;
+        return min->do_balance();
+    }
+    return p->do_balance();
 }
 
 ///end of functions
 
 int main() {
-    cout << pow(2, 3);
+cout << (1 << 3);
     /*
     int x;
     cin >> x;
@@ -389,7 +420,9 @@ int main() {
                 cout << "Tree is empty";
             }
             else {
-                a = a->remove(x);
+                a =
+                        remove(a, x);
+
             }
         }
         else if(command == "del_min")
@@ -420,6 +453,7 @@ int main() {
                 cout << "Tree is empty";
             }
             else {
+
                 a->print();
             }
         }
@@ -440,3 +474,50 @@ int main() {
 
     return 0;
 }
+/*
+ * if(a->left != NULL)
+                {
+                    cout << "here";
+                    tree *l = a->left;
+                    tree *r = a->right;
+                    tree *bm = a->left->before_max();
+                    tree * m = bm->right;
+                    bm->right = m->left;
+                    cout << "here";
+                    delete a;
+                    cout << "element was deleted";
+                    a = m;
+                    a->left = l;
+                    a->right = r;
+                }
+                else if (a->right != NULL)
+                {
+                    cout << "here";
+                    tree *l = a->left;
+                    tree *r = a->right;
+                    tree *bm = a->right->before_min();
+                    tree * m = bm->left;
+                    bm->left = m->right;
+                    cout << "here";
+                    delete a;
+                    cout << "element was deleted";
+                    a = m;
+
+                    a->left = l;
+                    a->right = r;
+                }
+                else
+                {
+                    delete a;
+                    a = NULL;
+                }
+                if(a != NULL)
+                {
+                    a = a->do_balance();
+                }
+
+            }
+            else {
+                a = a->remove(x);
+            }
+ */
